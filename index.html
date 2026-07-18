@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Undangan Sidang Skripsi - The Diva ✨</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <span class="emoji-big">🎀</span>
+      <button class="splash-btn" id="splashBtn">Buka Undangan</button>
+    </div>
+  </div>
+
+  <div class="floaters" aria-hidden="true" id="floaters"></div>
+
+  <div class="page">
+
+    <header class="fade-in">
+      <h1 class="main-title">🎀 SIDANG SKRIPSI PRINCESS 🎀</h1>
+
+      <div class="photo-frame" id="photoFrame">
+        <div class="photo-frame-inner" style="background: black" id="photoInner">
+          <img id="profilePhoto" src="img/foto-1.jpeg" alt="Foto Della Eggy Puspita Dewi"
+            style="cursor:pointer; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+        </div>
+      </div>
+
+      <p class="full-name">Della Eggy Puspita Dewi</p>
+      <div class="motto">
+        <span>hello S.Kom! 🎓</span>
+        <span>Doakan aku ya! 🙏💕</span>
+      </div>
+    </header>
+
+    <main class="invite-card fade-in delay-1" aria-label="Detail undangan sidang skripsi">
+      <h2 class="invite-heading">
+        Yuk, dateng ke sidangku!
+        <small>Kamu spesial banget diundang ke momen penting ini 🎀</small>
+      </h2>
+
+      <div class="thesis-title-box">
+        <div class="label">📖 Judul Skripsi</div>
+        <div class="thesis-text">"Evaluasi Tata Kelola Teknologi Informasi Dalam Pengelolaan Turnamen E-sports Mobile
+          Legends Bang Bang Menggunakan Framework Cobit 5 Pada Komunitas PNWC (Purworejo North Wolf City)"</div>
+      </div>
+
+      <div class="detail-list">
+        <div class="detail-item">
+          <span class="detail-icon" aria-hidden="true">📅</span>
+          <div class="detail-text">
+            <div class="label">Hari / Tanggal</div>
+            <div class="value">[TANGGAL_SIDANG]</div>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-icon" aria-hidden="true">⏰</span>
+          <div class="detail-text">
+            <div class="label">Waktu</div>
+            <div class="value">[WAKTU_SIDANG] WIB</div>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-icon" aria-hidden="true">📍</span>
+          <div class="detail-text">
+            <div class="label">Tempat</div>
+            <div class="value">Kampus Bundar Plaosan UMPWR (Universitas Muhammadiyah Purworejo)</div>
+            <a class="maps-inline-btn" href="https://maps.app.goo.gl/MY4tfohHcLGZ2NVk6" target="_blank"
+              rel="noopener">Buka Maps 🗺️</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="countdown-wrap">
+        <div class="countdown-title">Countdown menuju hari-H</div>
+        <div class="countdown" id="countdown" aria-live="polite">
+          <div class="unit"><span class="num" id="cd-days">00</span><span class="unit-label">Hari</span></div>
+          <div class="unit"><span class="num" id="cd-hours">00</span><span class="unit-label">Jam</span></div>
+          <div class="unit"><span class="num" id="cd-mins">00</span><span class="unit-label">Menit</span></div>
+          <div class="unit"><span class="num" id="cd-secs">00</span><span class="unit-label">Detik</span></div>
+        </div>
+      </div>
+
+      <button class="rsvp-btn" id="rsvpBtn" type="button">💌 RSVP di sini yuk!</button>
+    </main>
+
+    <section class="quote-box fade-in delay-2">
+      "Dream big, work hard, stay humble ✨"
+    </section>
+
+    <footer class="fade-in delay-4">
+      Made with 💖 and lots of caffeine
+    </footer>
+
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <h3 id="modalTitle">Konfirmasi Kehadiran</h3>
+      <p>Kasih tau aku kamu bisa dateng apa engga ya, biar aku ga deg-degan nunggu doang 😆</p>
+
+      <label for="rsvpName"
+        style="display:block; text-align:left; font-weight:700; font-size:0.9rem; color:var(--text-dark); margin-bottom:4px;">Nama
+        kamu</label>
+      <input type="text" id="rsvpName" placeholder="Tulis nama kamu..."
+        style="width:100%; padding:12px 14px; border-radius:16px; border:2px solid var(--pink-pastel); background:var(--white); font-family:'Nunito',sans-serif; font-weight:600; font-size:0.95rem; margin-bottom:16px; outline:none; transition:border 0.2s;"
+        onfocus="this.style.borderColor='var(--pink-hot)'" onblur="this.style.borderColor='var(--pink-pastel)'">
+
+      <button class="rsvp-option yes" id="rsvpYes" type="button">💖 Hadir! Aku dukung kamu!</button>
+      <button class="rsvp-option no" id="rsvpNo" type="button">🙈 Maaf, ga bisa hadir tapi sukses ya!</button>
+
+      <div class="rsvp-feedback" id="rsvpFeedback"></div>
+
+      <button class="modal-close" id="modalClose" type="button">Tutup</button>
+    </div>
+  </div>
+
+  <button class="music-control" id="musicControl" title="Play/Pause musik">🔊</button>
+
+</body>
+<script src="script.js"></script>
+
+</html>
