@@ -97,7 +97,6 @@ async function loadMessages() {
       <div class="rsvp-message-item">
         <div class="msg-name">
           ${msg.name}
-          <span class="msg-badge">${msg.status}</span>
         </div>
         ${msg.message ? `<div class="msg-text">💬 ${msg.message}</div>` : ''}
         <div class="msg-time">${formatTimestamp(msg.timestamp)}</div>
@@ -150,7 +149,7 @@ function formatTimestamp(timestamp) {
 }
 
 // Panggil loadMessages saat halaman dimuat
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Tunggu sebentar agar splash screen tidak mengganggu
   setTimeout(() => {
     loadMessages();
@@ -177,7 +176,6 @@ function addMessageToUI(name, status, message, timestamp) {
   messageItem.innerHTML = `
     <div class="msg-name">
       ${name}
-      <span class="msg-badge">${statusBadge}</span>
     </div>
     ${message ? `<div class="msg-text">💬 ${message}</div>` : ''}
     <div class="msg-time">Baru saja</div>
@@ -249,6 +247,29 @@ rsvpYes.addEventListener('click', async () => {
   const messageInput = document.getElementById('rsvpMessage');
   const name = nameInput.value.trim() || 'Anonim';
   const message = messageInput.value.trim() || '';
+
+  if (!name) {
+    rsvpFeedback.style.display = 'block';
+    rsvpFeedback.textContent = '⚠️ Nama wajib diisi ya! Jangan malu-malu 😊';
+    rsvpFeedback.style.color = '#FF1493';
+    nameInput.style.borderColor = '#FF1493';
+    nameInput.focus();
+    return;
+  }
+
+  // VALIDASI: Pesan wajib diisi
+  if (!message) {
+    rsvpFeedback.style.display = 'block';
+    rsvpFeedback.textContent = '💌 Kasih kata-kata dong buat aku! Nggak usah malu 😘';
+    rsvpFeedback.style.color = '#FF1493';
+    messageInput.style.borderColor = '#FF1493';
+    messageInput.focus();
+    return;
+  }
+
+  // Reset border
+  nameInput.style.borderColor = 'var(--pink-pastel)';
+  messageInput.style.borderColor = 'var(--pink-pastel)';
 
   // Disable buttons
   setButtonsDisabled(true);
@@ -333,6 +354,30 @@ rsvpNo.addEventListener('click', function (e) {
       const messageInput = document.getElementById('rsvpMessage');
       const name = nameInput.value.trim() || 'Anonim';
       const message = messageInput.value.trim() || '';
+
+      // VALIDASI: Nama wajib diisi
+      if (!name) {
+        rsvpFeedback.style.display = 'block';
+        rsvpFeedback.textContent = '⚠️ Nama wajib diisi ya! Jangan malu-malu 😊';
+        rsvpFeedback.style.color = '#FF1493';
+        nameInput.style.borderColor = '#FF1493';
+        nameInput.focus();
+        return;
+      }
+
+      // VALIDASI: Pesan wajib diisi
+      if (!message) {
+        rsvpFeedback.style.display = 'block';
+        rsvpFeedback.textContent = '💌 Kasih kata-kata dong buat aku! Nggak usah malu 😘';
+        rsvpFeedback.style.color = '#FF1493';
+        messageInput.style.borderColor = '#FF1493';
+        messageInput.focus();
+        return;
+      }
+
+      // Reset border
+      nameInput.style.borderColor = 'var(--pink-pastel)';
+      messageInput.style.borderColor = 'var(--pink-pastel)';
 
       // Disable buttons
       setButtonsDisabled(true);
