@@ -213,13 +213,11 @@ function launchConfetti() {
   const img = document.getElementById('profilePhoto');
   if (!img) return;
 
-  let currentIndex = 1;
+  let currentIndex = 0;
   const totalPhotos = 15;
   const intervalTime = 3000;
-  // Array untuk menyimpan urutan acak
   let shuffledOrder = [];
 
-  // Fungsi untuk membuat urutan acak
   function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -228,7 +226,6 @@ function launchConfetti() {
     return arr;
   }
 
-  // Inisialisasi urutan acak
   function initShuffledOrder() {
     shuffledOrder = [];
     for (let i = 1; i <= totalPhotos; i++) {
@@ -237,32 +234,51 @@ function launchConfetti() {
     shuffleArray(shuffledOrder);
   }
 
-  // Panggil sekali di awal
   initShuffledOrder();
 
-  function changePhoto() {
-    // Ambil indeks berikutnya dari urutan acak
-    currentIndex = (currentIndex % totalPhotos);
-    const photoNumber = shuffledOrder[currentIndex];
-    currentIndex++;
+  let isTransitioning = false;
 
-    // Jika sudah mencapai akhir, buat ulang urutan acak
-    if (currentIndex >= totalPhotos) {
+  function changePhoto() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    const photoNumber = shuffledOrder[currentIndex];
+    currentIndex = (currentIndex + 1) % totalPhotos;
+
+    if (currentIndex === 0) {
       initShuffledOrder();
-      currentIndex = 0;
     }
 
-    img.classList.add('fade-out');
-    img.classList.remove('fade-in');
+    // Efek fade yang lebih halus dengan opacity
+    img.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    img.style.opacity = '0';
 
     setTimeout(() => {
       img.src = `img/foto-${photoNumber}.jpg`;
-      img.classList.remove('fade-out');
-      img.classList.add('fade-in');
-    }, 400);
+      // Pastikan gambar sudah dimuat sebelum fade in
+      img.onload = function() {
+        img.style.opacity = '1';
+        isTransitioning = false;
+      };
+      // Fallback jika gambar gagal load
+      img.onerror = function() {
+        img.style.opacity = '1';
+        isTransitioning = false;
+      };
+      // Timeout safety
+      setTimeout(() => {
+        if (isTransitioning) {
+          img.style.opacity = '1';
+          isTransitioning = false;
+        }
+      }, 800);
+    }, 450);
   }
 
-  img.classList.add('fade-in');
+  // Set initial state
+  img.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+  img.style.opacity = '1';
+
   setInterval(changePhoto, intervalTime);
 })();
 
