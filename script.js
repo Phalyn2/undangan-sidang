@@ -70,7 +70,138 @@ const modalClose = document.getElementById('modalClose');
 const rsvpYes = document.getElementById('rsvpYes');
 const rsvpNo = document.getElementById('rsvpNo');
 const rsvpFeedback = document.getElementById('rsvpFeedback');
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAGnNuVaBtkrW6vEXxVDU9u0EGYDDyarCE0JhAtd7j2feX4YWahbrbK1wWdtZP5FYgfA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxkVWTE8kJKiXbS7z4iQyPj793LJNA-aGySOW_A4q6q5YOL3puAr50hRtJpWnnGhSDWmQ/exec';
+
+async function loadMessages() {
+  const container = document.getElementById('rsvpMessagesList');
+  if (!container) return;
+
+  try {
+    const url = `${SCRIPT_URL}?action=getMessages`;
+    const response = await fetch(url);
+    const messages = await response.json();
+
+    if (!messages || messages.length === 0) {
+      container.innerHTML = `
+        <div class="empty-message">
+          ✨ Belum ada pesan. Jadilah yang pertama! 💕
+        </div>
+      `;
+      return;
+    }
+
+    // Tampilkan 10 pesan terbaru (balik urutan)
+    const latestMessages = messages.slice(-10).reverse();
+
+    container.innerHTML = latestMessages.map(msg => `
+      <div class="rsvp-message-item">
+        <div class="msg-name">
+          ${msg.name}
+          <span class="msg-badge">${msg.status}</span>
+        </div>
+        ${msg.message ? `<div class="msg-text">💬 ${msg.message}</div>` : ''}
+        <div class="msg-time">${formatTimestamp(msg.timestamp)}</div>
+      </div>
+    `).join('');
+
+    // Auto scroll ke atas
+    container.scrollTop = 0;
+
+  } catch (error) {
+    console.error('Gagal memuat pesan:', error);
+    container.innerHTML = `
+      <div class="empty-message">
+        ⚠️ Gagal memuat pesan, tapi tetep semangat! 💪
+      </div>
+    `;
+  }
+}
+
+function formatTimestamp(timestamp) {
+  if (!timestamp) return '';
+  try {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+
+    // Jika kurang dari 1 jam
+    if (diff < 60 * 60 * 1000) {
+      const minutes = Math.floor(diff / (60 * 1000));
+      return `${minutes} menit yang lalu`;
+    }
+
+    // Jika kurang dari 1 hari
+    if (diff < 24 * 60 * 60 * 1000) {
+      const hours = Math.floor(diff / (60 * 60 * 1000));
+      return `${hours} jam yang lalu`;
+    }
+
+    // Format tanggal
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch {
+    return '';
+  }
+}
+
+// Panggil loadMessages saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+  // Tunggu sebentar agar splash screen tidak mengganggu
+  setTimeout(() => {
+    loadMessages();
+  }, 1000);
+});
+
+function addMessageToUI(name, status, message, timestamp) {
+  const container = document.getElementById('rsvpMessagesList');
+  if (!container) return;
+
+  // Hapus pesan kosong jika ada
+  const emptyMessage = container.querySelector('.empty-message');
+  if (emptyMessage) {
+    container.innerHTML = '';
+  }
+
+  // Buat elemen pesan baru
+  const messageItem = document.createElement('div');
+  messageItem.className = 'rsvp-message-item';
+  messageItem.style.animation = 'slideInMessage 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both';
+
+  const statusBadge = status === 'Hadir' ? 'Hadir' : status;
+
+  messageItem.innerHTML = `
+    <div class="msg-name">
+      ${name}
+      <span class="msg-badge">${statusBadge}</span>
+    </div>
+    ${message ? `<div class="msg-text">💬 ${message}</div>` : ''}
+    <div class="msg-time">Baru saja</div>
+  `;
+
+  // Tambahkan pesan di bagian atas (terbaru di atas)
+  container.insertBefore(messageItem, container.firstChild);
+
+  // Batasi jumlah pesan yang ditampilkan (maksimal 10)
+  while (container.children.length > 10) {
+    container.removeChild(container.lastChild);
+  }
+
+  // Scroll ke atas
+  container.scrollTop = 0;
+
+  // Update waktu setelah 1 menit menjadi "1 menit yang lalu"
+  setTimeout(() => {
+    const timeElement = messageItem.querySelector('.msg-time');
+    if (timeElement) {
+      timeElement.textContent = '1 menit yang lalu';
+    }
+  }, 60000);
+}
 
 async function saveToGoogleSheet(name, status, message) {
   try {
@@ -80,12 +211,18 @@ async function saveToGoogleSheet(name, status, message) {
       method: 'GET',
     });
 
+    // Tambahkan pesan ke UI langsung setelah berhasil menyimpan
+    const timestamp = new Date().toISOString();
+    addMessageToUI(name, status, message, timestamp);
+
     return true;
   } catch (error) {
     console.error('Error saving to Google Sheet:', error);
     return false;
   }
 }
+
+
 
 function openModal() {
   modalOverlay.classList.add('open');
@@ -131,7 +268,6 @@ rsvpYes.addEventListener('click', async () => {
     // Close modal setelah 1.5 detik
     setTimeout(() => {
       closeModal();
-      // Reset form
       nameInput.value = '';
       messageInput.value = '';
       rsvpFeedback.style.display = 'none';
