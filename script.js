@@ -217,6 +217,8 @@ function launchConfetti() {
   const totalPhotos = 15;
   const intervalTime = 3000;
   let shuffledOrder = [];
+  let isTransitioning = false;
+  let isFirstLoad = true;
 
   function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -236,7 +238,19 @@ function launchConfetti() {
 
   initShuffledOrder();
 
-  let isTransitioning = false;
+  // Preload semua gambar di awal
+  function preloadImages() {
+    const promises = [];
+    for (let i = 1; i <= totalPhotos; i++) {
+      promises.push(new Promise((resolve) => {
+        const tempImg = new Image();
+        tempImg.src = `img/foto-${i}.jpg`;
+        tempImg.onload = resolve;
+        tempImg.onerror = resolve; // tetap resolve walau error
+      }));
+    }
+    return Promise.all(promises);
+  }
 
   function changePhoto() {
     if (isTransitioning) return;
@@ -249,23 +263,19 @@ function launchConfetti() {
       initShuffledOrder();
     }
 
-    // Efek fade yang lebih halus dengan opacity
     img.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
     img.style.opacity = '0';
 
     setTimeout(() => {
       img.src = `img/foto-${photoNumber}.jpg`;
-      // Pastikan gambar sudah dimuat sebelum fade in
       img.onload = function() {
         img.style.opacity = '1';
         isTransitioning = false;
       };
-      // Fallback jika gambar gagal load
       img.onerror = function() {
         img.style.opacity = '1';
         isTransitioning = false;
       };
-      // Timeout safety
       setTimeout(() => {
         if (isTransitioning) {
           img.style.opacity = '1';
@@ -277,9 +287,35 @@ function launchConfetti() {
 
   // Set initial state
   img.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-  img.style.opacity = '1';
+  img.style.opacity = '0';
 
-  setInterval(changePhoto, intervalTime);
+  // Load foto pertama dengan cepat
+  async function loadFirstPhoto() {
+    // Preload semua gambar di background
+    preloadImages();
+    
+    // Langsung tampilkan foto pertama tanpa menunggu preload selesai
+    const firstPhoto = shuffledOrder[0];
+    img.src = `img/foto-${firstPhoto}.jpg`;
+    img.onload = function() {
+      img.style.opacity = '1';
+    };
+    // Fallback jika foto pertama belum load setelah 300ms
+    setTimeout(() => {
+      if (img.style.opacity === '0') {
+        img.style.opacity = '1';
+      }
+    }, 300);
+  }
+
+  loadFirstPhoto();
+
+  // Mulai slideshow setelah 2 detik (biar user lihat foto pertama dulu)
+  setTimeout(() => {
+    // Reset index biar ga ke-skip
+    currentIndex = 1;
+    setInterval(changePhoto, intervalTime);
+  }, 2000);
 })();
 
 const photoFrame = document.getElementById('photoFrame');
