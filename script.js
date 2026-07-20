@@ -113,15 +113,40 @@ rsvpYes.addEventListener('click', async () => {
   const name = nameInput.value.trim() || 'Anonim';
   const message = messageInput.value.trim() || '';
 
+  // Disable buttons
+  setButtonsDisabled(true);
+
   rsvpFeedback.style.display = 'block';
   rsvpFeedback.textContent = 'Menyimpan data... 💫';
 
   const saved = await saveToGoogleSheet(name, 'Hadir', message);
 
+  // Enable buttons kembali
+  setButtonsDisabled(false);
+
   if (saved) {
     rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+    showToast('🎉 Berhasil! Terima kasih sudah RSVP! 💖', 'success');
+
+    // Close modal setelah 1.5 detik
+    setTimeout(() => {
+      closeModal();
+      // Reset form
+      nameInput.value = '';
+      messageInput.value = '';
+      rsvpFeedback.style.display = 'none';
+    }, 1500);
   } else {
-    rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+    rsvpFeedback.textContent = 'Ada kendala teknis, tapi tetep makasih ya! 💖';
+    showToast('⚠️ Ada sedikit kendala, tapi data tetap tercatat!', 'warning');
+
+    // Tetap close modal walau error
+    setTimeout(() => {
+      closeModal();
+      nameInput.value = '';
+      messageInput.value = '';
+      rsvpFeedback.style.display = 'none';
+    }, 2000);
   }
 
   launchConfetti();
@@ -134,7 +159,7 @@ rsvpNo.addEventListener('click', function (e) {
   if (noButtonCount < maxNoClicks) {
     e.preventDefault();
     rsvpFeedback.style.display = 'block';
-    rsvpFeedback.textContent = 'Hihi';
+    rsvpFeedback.textContent = 'Hihi 🤭';
   }
 
   if (noButtonCount >= maxNoClicks) return;
@@ -167,22 +192,42 @@ rsvpNo.addEventListener('click', function (e) {
     this.style.left = 'auto';
     this.style.top = 'auto';
 
-    // PERBAIKAN: Panggil fungsi save seperti rsvpYes
     this.onclick = async function () {
       const nameInput = document.getElementById('rsvpName');
       const messageInput = document.getElementById('rsvpMessage');
       const name = nameInput.value.trim() || 'Anonim';
       const message = messageInput.value.trim() || '';
 
+      // Disable buttons
+      setButtonsDisabled(true);
+
       rsvpFeedback.style.display = 'block';
       rsvpFeedback.textContent = 'Menyimpan data... 💫';
 
       const saved = await saveToGoogleSheet(name, 'Hadir (akhirnya 😄)', message);
 
+      setButtonsDisabled(false);
+
       if (saved) {
         rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+        showToast('🎉 Berhasil! Terima kasih sudah RSVP! 💖', 'success');
+
+        setTimeout(() => {
+          closeModal();
+          nameInput.value = '';
+          messageInput.value = '';
+          rsvpFeedback.style.display = 'none';
+        }, 1500);
       } else {
-        rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+        rsvpFeedback.textContent = 'Ada kendala teknis, tapi tetep makasih ya! 💖';
+        showToast('⚠️ Ada sedikit kendala, tapi data tetap tercatat!', 'warning');
+
+        setTimeout(() => {
+          closeModal();
+          nameInput.value = '';
+          messageInput.value = '';
+          rsvpFeedback.style.display = 'none';
+        }, 2000);
       }
 
       launchConfetti();
@@ -252,6 +297,8 @@ function launchConfetti() {
     return Promise.all(promises);
   }
 
+
+
   function changePhoto() {
     if (isTransitioning) return;
     isTransitioning = true;
@@ -268,11 +315,11 @@ function launchConfetti() {
 
     setTimeout(() => {
       img.src = `img/foto-${photoNumber}.jpg`;
-      img.onload = function() {
+      img.onload = function () {
         img.style.opacity = '1';
         isTransitioning = false;
       };
-      img.onerror = function() {
+      img.onerror = function () {
         img.style.opacity = '1';
         isTransitioning = false;
       };
@@ -293,11 +340,11 @@ function launchConfetti() {
   async function loadFirstPhoto() {
     // Preload semua gambar di background
     preloadImages();
-    
+
     // Langsung tampilkan foto pertama tanpa menunggu preload selesai
     const firstPhoto = shuffledOrder[0];
     img.src = `img/foto-${firstPhoto}.jpg`;
-    img.onload = function() {
+    img.onload = function () {
       img.style.opacity = '1';
     };
     // Fallback jika foto pertama belum load setelah 300ms
@@ -378,4 +425,51 @@ splashBtn.addEventListener('click', function () {
 });
 
 musicControl.addEventListener('click', toggleMusic);
+
+// Fungsi untuk disable tombol sementara
+function setButtonsDisabled(disabled) {
+  const yesBtn = document.getElementById('rsvpYes');
+  const noBtn = document.getElementById('rsvpNo');
+  const closeBtn = document.getElementById('modalClose');
+
+  if (disabled) {
+    yesBtn.disabled = true;
+    noBtn.disabled = true;
+    yesBtn.style.opacity = '0.6';
+    noBtn.style.opacity = '0.6';
+    yesBtn.style.cursor = 'not-allowed';
+    noBtn.style.cursor = 'not-allowed';
+  } else {
+    yesBtn.disabled = false;
+    noBtn.disabled = false;
+    yesBtn.style.opacity = '1';
+    noBtn.style.opacity = '1';
+    yesBtn.style.cursor = 'pointer';
+    noBtn.style.cursor = 'pointer';
+  }
+}
+
+// Tambahkan fungsi untuk menampilkan notifikasi toast
+function showToast(message, type = 'success') {
+  // Hapus toast lama jika ada
+  const oldToast = document.querySelector('.toast-notification');
+  if (oldToast) oldToast.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'toast-notification';
+  toast.innerHTML = `
+    <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+    <span class="toast-message">${message}</span>
+  `;
+  document.body.appendChild(toast);
+
+  // Trigger animasi masuk
+  setTimeout(() => toast.classList.add('show'), 10);
+
+  // Hapus setelah 4 detik
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, 4000);
+}
 
