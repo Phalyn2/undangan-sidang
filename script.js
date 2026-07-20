@@ -26,7 +26,7 @@
   }
 })();
 
-const targetDate = new Date('2026-08-20T09:00:00');
+const targetDate = new Date('2026-07-23T13:00:00');
 
 function updateCountdown() {
   const now = new Date();
@@ -70,6 +70,22 @@ const modalClose = document.getElementById('modalClose');
 const rsvpYes = document.getElementById('rsvpYes');
 const rsvpNo = document.getElementById('rsvpNo');
 const rsvpFeedback = document.getElementById('rsvpFeedback');
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAGnNuVaBtkrW6vEXxVDU9u0EGYDDyarCE0JhAtd7j2feX4YWahbrbK1wWdtZP5FYgfA/exec';
+
+async function saveToGoogleSheet(name, status, message) {
+  try {
+    const url = `${SCRIPT_URL}?name=${encodeURIComponent(name)}&status=${encodeURIComponent(status)}&message=${encodeURIComponent(message)}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error saving to Google Sheet:', error);
+    return false;
+  }
+}
 
 function openModal() {
   modalOverlay.classList.add('open');
@@ -91,16 +107,30 @@ modalOverlay.addEventListener('click', (e) => {
   if (e.target === modalOverlay) closeModal();
 });
 
-rsvpYes.addEventListener('click', () => {
+rsvpYes.addEventListener('click', async () => {
+  const nameInput = document.getElementById('rsvpName');
+  const messageInput = document.getElementById('rsvpMessage');
+  const name = nameInput.value.trim() || 'Anonim';
+  const message = messageInput.value.trim() || '';
+
   rsvpFeedback.style.display = 'block';
-  rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+  rsvpFeedback.textContent = 'Menyimpan data... 💫';
+
+  const saved = await saveToGoogleSheet(name, 'Hadir', message);
+
+  if (saved) {
+    rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+  } else {
+    rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+  }
+
   launchConfetti();
 });
 
 let noButtonCount = 0;
 const maxNoClicks = 3;
 
-rsvpNo.addEventListener('click', function(e) {
+rsvpNo.addEventListener('click', function (e) {
   if (noButtonCount < maxNoClicks) {
     e.preventDefault();
     rsvpFeedback.style.display = 'block';
@@ -137,9 +167,24 @@ rsvpNo.addEventListener('click', function(e) {
     this.style.left = 'auto';
     this.style.top = 'auto';
 
-    this.onclick = function() {
+    // PERBAIKAN: Panggil fungsi save seperti rsvpYes
+    this.onclick = async function () {
+      const nameInput = document.getElementById('rsvpName');
+      const messageInput = document.getElementById('rsvpMessage');
+      const name = nameInput.value.trim() || 'Anonim';
+      const message = messageInput.value.trim() || '';
+
       rsvpFeedback.style.display = 'block';
-      rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+      rsvpFeedback.textContent = 'Menyimpan data... 💫';
+
+      const saved = await saveToGoogleSheet(name, 'Hadir (akhirnya 😄)', message);
+
+      if (saved) {
+        rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+      } else {
+        rsvpFeedback.textContent = 'Yeay makasih banyak! Sampai ketemu di hari-H ya 💖';
+      }
+
       launchConfetti();
     };
   }
@@ -169,17 +214,49 @@ function launchConfetti() {
   if (!img) return;
 
   let currentIndex = 1;
-  const totalPhotos = 6;
+  const totalPhotos = 15;
   const intervalTime = 3000;
+  // Array untuk menyimpan urutan acak
+  let shuffledOrder = [];
+
+  // Fungsi untuk membuat urutan acak
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // Inisialisasi urutan acak
+  function initShuffledOrder() {
+    shuffledOrder = [];
+    for (let i = 1; i <= totalPhotos; i++) {
+      shuffledOrder.push(i);
+    }
+    shuffleArray(shuffledOrder);
+  }
+
+  // Panggil sekali di awal
+  initShuffledOrder();
 
   function changePhoto() {
-    currentIndex = (currentIndex % totalPhotos) + 1;
+    // Ambil indeks berikutnya dari urutan acak
+    currentIndex = (currentIndex % totalPhotos);
+    const photoNumber = shuffledOrder[currentIndex];
+    currentIndex++;
+
+    // Jika sudah mencapai akhir, buat ulang urutan acak
+    if (currentIndex >= totalPhotos) {
+      initShuffledOrder();
+      currentIndex = 0;
+    }
 
     img.classList.add('fade-out');
     img.classList.remove('fade-in');
 
     setTimeout(() => {
-      img.src = `img/foto-${currentIndex}.jpeg`;
+      img.src = `img/foto-${photoNumber}.jpg`;
       img.classList.remove('fade-out');
       img.classList.add('fade-in');
     }, 400);
@@ -192,7 +269,7 @@ function launchConfetti() {
 const photoFrame = document.getElementById('photoFrame');
 let isExpanded = false;
 
-photoFrame.addEventListener('click', function(e) {
+photoFrame.addEventListener('click', function (e) {
   e.stopPropagation();
 
   if (isExpanded) {
@@ -239,7 +316,7 @@ function toggleMusic() {
   }
 }
 
-splashBtn.addEventListener('click', function() {
+splashBtn.addEventListener('click', function () {
   playMusic();
   splashScreen.classList.add('hidden');
 
@@ -249,3 +326,4 @@ splashBtn.addEventListener('click', function() {
 });
 
 musicControl.addEventListener('click', toggleMusic);
+

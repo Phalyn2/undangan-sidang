@@ -33,7 +33,7 @@
 
       <div class="photo-frame" id="photoFrame">
         <div class="photo-frame-inner" style="background: black" id="photoInner">
-          <img id="profilePhoto" src="img/foto-1.jpeg" alt="Foto Della Eggy Puspita Dewi"
+          <img id="profilePhoto" src="img/foto-1.jpg" alt="Foto Della Eggy Puspita Dewi"
             style="cursor:pointer; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
         </div>
       </div>
@@ -62,7 +62,7 @@
           <span class="detail-icon" aria-hidden="true">📅</span>
           <div class="detail-text">
             <div class="label">Hari / Tanggal</div>
-            <div class="value">[TANGGAL_SIDANG]</div>
+            <div class="value">Kamis, 23 Juli 2026</div>
           </div>
         </div>
 
@@ -70,7 +70,7 @@
           <span class="detail-icon" aria-hidden="true">⏰</span>
           <div class="detail-text">
             <div class="label">Waktu</div>
-            <div class="value">[WAKTU_SIDANG] WIB</div>
+            <div class="value">13.00 WIB</div>
           </div>
         </div>
 
@@ -119,6 +119,14 @@
       <input type="text" id="rsvpName" placeholder="Tulis nama kamu..."
         style="width:100%; padding:12px 14px; border-radius:16px; border:2px solid var(--pink-pastel); background:var(--white); font-family:'Nunito',sans-serif; font-weight:600; font-size:0.95rem; margin-bottom:16px; outline:none; transition:border 0.2s;"
         onfocus="this.style.borderColor='var(--pink-hot)'" onblur="this.style.borderColor='var(--pink-pastel)'">
+
+      <label for="rsvpMessage"
+        style="display:block; text-align:left; font-weight:700; font-size:0.9rem; color:var(--text-dark); margin-bottom:4px;">💌
+        Pesan / kata-kata buat aku</label>
+      <textarea id="rsvpMessage" rows="3" placeholder="Tulis pesan dukungan atau kata-kata manis buat aku..."
+        style="width:100%; padding:12px 14px; border-radius:16px; border:2px solid var(--pink-pastel); background:var(--white); font-family:'Nunito',sans-serif; font-weight:600; font-size:0.95rem; margin-bottom:16px; outline:none; transition:border 0.2s; resize:vertical; min-height:70px;"
+        onfocus="this.style.borderColor='var(--pink-hot)'"
+        onblur="this.style.borderColor='var(--pink-pastel)'"></textarea>
 
       <button class="rsvp-option yes" id="rsvpYes" type="button">💖 Hadir! Aku dukung kamu!</button>
       <button class="rsvp-option no" id="rsvpNo" type="button">🙈 Maaf, ga bisa hadir tapi sukses ya!</button>
